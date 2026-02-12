@@ -1,0 +1,24 @@
+# ======
+# Начиная с версии 1.16 во всех сообщениях и во всех файлах конфигурации
+# можно использовать HEX формат с помощью &#FFFFFFСообщение
+# ======
+noPerms:
+  - '&9Cloud&bPayments &8- &cУ Вас недостаточно прав!'
+
+cloudpayments:
+  usage:
+    - '&9Cloud&bPayments &8- &7Помощь'
+    - '&f/cloudpayments reload &8- &eПерезагрузить плагин'
+    - '&f/cloudpayments debug <on/off> &8- &eПереключить отладку'
+  reload:
+    - '&9Cloud&bPayments &8- &aПлагин перезагружен! &7({time}мс)'
+  debugOn:
+    - '&9Cloud&bPayments &8- &fРежим отладки&a включен&7!'
+  debugOff:
+    - '&9Cloud&bPayments &8- &fРежим отладки&c выключен&7!'
+
+cart:
+  disabled:
+    - '&9Cloud&bPayments &8- &fКорзина отключена на этом сервере'
+  notify:
+    - '&9Cloud&bPayments &8- &fУ Вас в корзине есть товары. Открыть - &e/cart'

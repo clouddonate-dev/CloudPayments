@@ -3,8 +3,7 @@ package ru.clouddonate.cloudpayments.configuration;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import ru.basher.configuration.CommentConfigurationSection;
-import ru.clouddonate.cloudpayments.configuration.migrate.MigratableFile;
-import ru.clouddonate.cloudpayments.configuration.migrate.MigrationIO;
+import ru.basher.configuration.migration.MigrationContext;
 import ru.clouddonate.cloudpayments.util.TextUtil;
 
 import java.util.ArrayList;
@@ -12,7 +11,7 @@ import java.util.Collections;
 import java.util.List;
 
 @Getter
-public class MessagesFile implements MigratableFile {
+public class MessagesFile implements ConfigurationFile {
 
     private final List<String> noPerms = new ArrayList<>();
 
@@ -44,15 +43,17 @@ public class MessagesFile implements MigratableFile {
     }
 
     @Override
-    public void migrate(@NotNull MigrationIO io, int fromVersion) throws Exception {
-        CommentConfigurationSection newConfig = io.resource(fileName());
+    public void migrate(@NotNull MigrationContext ctx, int fromVersion) throws Exception {
+        CommentConfigurationSection newConfig = ctx.resource(fileName());
         if (fromVersion < 2) { // 1 -> 2
-            CommentConfigurationSection config = io.fs("config.yml");
+            CommentConfigurationSection config = ctx.fs("config.yml");
 
             newConfig.set("noPerms", Collections.singletonList(config.getString("messages.noPermission", "")));
             newConfig.set("cloudpayments.reload", Collections.singletonList(config.getString("messages.reload", "").replace("{took}", "{time}") ));
             newConfig.set("cloudpayments.debugOn", Collections.singletonList(config.getString("messages.debug-enabled", "")));
             newConfig.set("cloudpayments.debugOff", Collections.singletonList(config.getString("messages.debug-disabled", "")));
+
+            ctx.relocateCommonSections(config, newConfig);
         }
 //        if(fromVersion < 3) { // 2 -> 3
 //            FOR EXAMPLE

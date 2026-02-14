@@ -4,8 +4,7 @@ import lombok.Getter;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import ru.basher.configuration.CommentConfigurationSection;
-import ru.clouddonate.cloudpayments.configuration.migrate.MigratableFile;
-import ru.clouddonate.cloudpayments.configuration.migrate.MigrationIO;
+import ru.basher.configuration.migration.MigrationContext;
 import ru.clouddonate.cloudpayments.util.TextUtil;
 import ru.clouddonate.cloudpayments.util.inventory.ItemStackGenerator;
 import ru.clouddonate.cloudpayments.util.inventory.MenuItem;
@@ -14,7 +13,7 @@ import ru.clouddonate.cloudpayments.util.inventory.MenuItemStack;
 import java.util.*;
 
 @Getter
-public class CartFile implements MigratableFile {
+public class CartFile implements ConfigurationFile {
 
     private boolean enabled;
     private boolean onlyForOffline;
@@ -75,7 +74,7 @@ public class CartFile implements MigratableFile {
     }
 
     @Override
-    public void migrate(@NotNull MigrationIO io, int fromVersion) throws Exception {
+    public void migrate(@NotNull MigrationContext ctx, int fromVersion) throws Exception {
     }
 
 

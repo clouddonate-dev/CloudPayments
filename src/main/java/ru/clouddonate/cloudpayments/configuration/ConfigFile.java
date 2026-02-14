@@ -6,8 +6,7 @@ import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import ru.basher.configuration.CommentConfigurationSection;
 import ru.basher.configuration.CommentFileConfiguration;
-import ru.clouddonate.cloudpayments.configuration.migrate.MigratableFile;
-import ru.clouddonate.cloudpayments.configuration.migrate.MigrationIO;
+import ru.basher.configuration.migration.MigrationContext;
 import ru.clouddonate.cloudpayments.util.TextUtil;
 
 import java.io.File;
@@ -18,7 +17,7 @@ import java.util.Map;
 
 @Getter
 @RequiredArgsConstructor
-public class ConfigFile implements MigratableFile {
+public class ConfigFile implements ConfigurationFile {
 
     private final Plugin plugin;
 
@@ -78,10 +77,10 @@ public class ConfigFile implements MigratableFile {
     }
 
     @Override
-    public void migrate(@NotNull MigrationIO io, int fromVersion) throws Exception {
-        CommentConfigurationSection newConfig = io.resource(fileName());
+    public void migrate(@NotNull MigrationContext ctx, int fromVersion) throws Exception {
+        CommentConfigurationSection newConfig = ctx.resource(fileName());
         if (fromVersion < 2) { // 1 -> 2
-            CommentConfigurationSection config = io.fs("config.yml");
+            CommentConfigurationSection config = ctx.fs("config.yml");
 
             newConfig.set("settings.debugMode", config.getBoolean("settings.debug-mode", false));
             newConfig.set("settings.requestDelay", Math.max(config.getInt("settings.request-delay", 0), 20));
@@ -131,6 +130,7 @@ public class ConfigFile implements MigratableFile {
                     inGameAnnouncementsSec.set(key + ".actions", actions);
                 }
             }
+            ctx.relocateCommonSections(config, newConfig);
         }
     }
 

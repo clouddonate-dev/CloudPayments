@@ -4,18 +4,15 @@ import lombok.Getter;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import ru.basher.configuration.CommentFileConfiguration;
-import ru.clouddonate.cloudpayments.configuration.migrate.MigratableFile;
-import ru.clouddonate.cloudpayments.configuration.migrate.MigrationService;
+import ru.basher.configuration.migration.Migration;
 import ru.clouddonate.cloudpayments.service.Service;
 
 import java.io.File;
-import java.util.Arrays;
 
 @Getter
 public class ConfigurationService implements Service {
 
     private final Plugin plugin;
-    private final MigrationService migrationService;
 
     private final ConfigFile configFile;
     private final MessagesFile messagesFile;
@@ -27,15 +24,14 @@ public class ConfigurationService implements Service {
         configFile = new ConfigFile(plugin);
         messagesFile = new MessagesFile();
         cartFile = new CartFile();
-
-        migrationService = new MigrationService(plugin,
-                Arrays.asList(configFile, messagesFile, cartFile)
-        );
     }
 
     @Override
     public void enable() {
-        migrationService.migrateIfNeeded();
+        Migration migration = new Migration.Builder().dataFolder(plugin.getDataFolder())
+                        .versionFileName("config.yml").versionSection("configVersion")
+                        .needBackup(true).addFiles(configFile, messagesFile, cartFile).build();
+        migration.migrateIfNeeded();
 
         reload();
     }
@@ -47,14 +43,14 @@ public class ConfigurationService implements Service {
         saveAndLoadResource(cartFile);
     }
 
-    private void saveAndLoadResource(@NotNull MigratableFile migratableFile) {
+    private void saveAndLoadResource(@NotNull ConfigurationFile configurationFile) {
         try {
-            File file = new File(plugin.getDataFolder(), migratableFile.fileName());
-            if(!file.exists()) plugin.saveResource(migratableFile.fileName(), false);
+            File file = new File(plugin.getDataFolder(), configurationFile.fileName());
+            if(!file.exists()) plugin.saveResource(configurationFile.fileName(), false);
 
             CommentFileConfiguration config = new CommentFileConfiguration();
             config.load(file);
-            migratableFile.load(config);
+            configurationFile.load(config);
         } catch (Exception ignored) {
         }
     }

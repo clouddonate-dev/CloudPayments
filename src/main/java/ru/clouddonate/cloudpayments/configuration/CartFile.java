@@ -74,7 +74,7 @@ public class CartFile implements ConfigurationFile {
     }
 
     @Override
-    public void migrate(@NotNull MigrationContext ctx, int fromVersion) throws Exception {
+    public void migrate(@NotNull MigrationContext ctx, int fromVersion, int toVersion) throws Exception {
     }
 
 

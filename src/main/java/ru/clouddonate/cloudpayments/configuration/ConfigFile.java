@@ -77,61 +77,65 @@ public class ConfigFile implements ConfigurationFile {
     }
 
     @Override
-    public void migrate(@NotNull MigrationContext ctx, int fromVersion) throws Exception {
+    public void migrate(@NotNull MigrationContext ctx, int fromVersion, int toVersion) throws Exception {
         CommentConfigurationSection newConfig = ctx.resource(fileName());
-        if (fromVersion < 2) { // 1 -> 2
-            CommentConfigurationSection config = ctx.fs("config.yml");
 
-            newConfig.set("settings.debugMode", config.getBoolean("settings.debug-mode", false));
-            newConfig.set("settings.requestDelay", Math.max(config.getInt("settings.request-delay", 0), 20));
+        for(int version = fromVersion; version < toVersion; version++) {
+            if(version == 1) {
+                CommentConfigurationSection config = ctx.fs("config.yml");
 
-            newConfig.set("settings.shop.shopId", config.getString("settings.shop.shop-id", ""));
-            newConfig.set("settings.shop.shopKey", config.getString("settings.shop.shop-key", ""));
-            newConfig.set("settings.shop.serverId", config.getString("settings.shop.server-id", ""));
+                newConfig.set("settings.debugMode", config.getBoolean("settings.debug-mode", false));
+                newConfig.set("settings.requestDelay", Math.max(config.getInt("settings.request-delay", 0), 20));
 
-            newConfig.set("logs.payments.enabled", config.getBoolean("local-storage.payments.enabled", false));
-            newConfig.set("logs.payments.format", config.getString("local-storage.payments.format", "")
-                    .replace("<date>", "{date}")
-                    .replace("<time>", "{time}")
-                    .replace("<nickname>", "{playerName}")
-                    .replace("<product_name>", "{product}")
-                    .replace("<count>", "{amount}")
-                    .replace("<price>", "{price}")
-                    .replace("<payment_id>", "{paymentId}")
-            );
+                newConfig.set("settings.shop.shopId", config.getString("settings.shop.shop-id", ""));
+                newConfig.set("settings.shop.shopKey", config.getString("settings.shop.shop-key", ""));
+                newConfig.set("settings.shop.serverId", config.getString("settings.shop.server-id", ""));
 
-            newConfig.set("messengers.telegram.enabled", config.getBoolean("messengers.telegram.enabled", false));
-            newConfig.set("messengers.telegram.apiToken", config.getString("messengers.telegram.api-token", ""));
+                newConfig.set("logs.payments.enabled", config.getBoolean("local-storage.payments.enabled", false));
+                newConfig.set("logs.payments.format", config.getString("local-storage.payments.format", "")
+                        .replace("<date>", "{date}")
+                        .replace("<time>", "{time}")
+                        .replace("<nickname>", "{playerName}")
+                        .replace("<product_name>", "{product}")
+                        .replace("<count>", "{amount}")
+                        .replace("<price>", "{price}")
+                        .replace("<payment_id>", "{paymentId}")
+                );
 
-            newConfig.set("messengers.telegram.ids", config.getStringList("messengers.telegram.ids"));
+                newConfig.set("messengers.telegram.enabled", config.getBoolean("messengers.telegram.enabled", false));
+                newConfig.set("messengers.telegram.apiToken", config.getString("messengers.telegram.api-token", ""));
 
-            CommentConfigurationSection inGameAnnouncementsSec = newConfig.getConfigurationSection("inGameAnnouncements");
-            CommentConfigurationSection oldInGameAnnouncementsSec = config.getConfigurationSection("in-game-announcements");
-            if (inGameAnnouncementsSec != null && oldInGameAnnouncementsSec != null) {
-                for (String key : oldInGameAnnouncementsSec.getMap().keySet()) {
-                    List<String> actions = oldInGameAnnouncementsSec.getStringList(key);
-                    if(actions.isEmpty()) continue;
-                    actions.replaceAll(string -> {
-                        if (string.startsWith("{SOUND}")) {
-                            string = string.replace("{SOUND}", "SOUND:") + ";1.0;1.0";
-                        }
-                        if (string.startsWith("{TITLE_MESSAGE}")) {
-                            string = string.replace("{TITLE_MESSAGE}", "TITLE:").replace("::", ";");
-                        }
-                        return string
-                                .replace("{CHAT_MESSAGE}", "BROADCAST:")
-                                .replace("{ACTIONBAR_MESSAGE}", "ACTIONBAR:")
-                                .replace("{COMMAND}", "COMMAND:")
-                                .replace("<nickname>", "{playerName}")
-                                .replace("<price>", "{price}")
-                                .replace("<product>", "{product}")
-                                .replace("<count>", "{amount}");
-                    });
-                    inGameAnnouncementsSec.set(key + ".actions", actions);
+                newConfig.set("messengers.telegram.ids", config.getStringList("messengers.telegram.ids"));
+
+                CommentConfigurationSection inGameAnnouncementsSec = newConfig.getConfigurationSection("inGameAnnouncements");
+                CommentConfigurationSection oldInGameAnnouncementsSec = config.getConfigurationSection("in-game-announcements");
+                if (inGameAnnouncementsSec != null && oldInGameAnnouncementsSec != null) {
+                    for (String key : oldInGameAnnouncementsSec.getMap().keySet()) {
+                        List<String> actions = oldInGameAnnouncementsSec.getStringList(key);
+                        if(actions.isEmpty()) continue;
+                        actions.replaceAll(string -> {
+                            if (string.startsWith("{SOUND}")) {
+                                string = string.replace("{SOUND}", "SOUND:") + ";1.0;1.0";
+                            }
+                            if (string.startsWith("{TITLE_MESSAGE}")) {
+                                string = string.replace("{TITLE_MESSAGE}", "TITLE:").replace("::", ";");
+                            }
+                            return string
+                                    .replace("{CHAT_MESSAGE}", "BROADCAST:")
+                                    .replace("{ACTIONBAR_MESSAGE}", "ACTIONBAR:")
+                                    .replace("{COMMAND}", "COMMAND:")
+                                    .replace("<nickname>", "{playerName}")
+                                    .replace("<price>", "{price}")
+                                    .replace("<product>", "{product}")
+                                    .replace("<count>", "{amount}");
+                        });
+                        inGameAnnouncementsSec.set(key + ".actions", actions);
+                    }
                 }
+                ctx.relocateCommonSections(config, newConfig);
             }
-            ctx.relocateCommonSections(config, newConfig);
         }
+
     }
 
     public void setDebugMode(boolean enable) {

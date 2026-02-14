@@ -43,17 +43,20 @@ public class MessagesFile implements ConfigurationFile {
     }
 
     @Override
-    public void migrate(@NotNull MigrationContext ctx, int fromVersion) throws Exception {
+    public void migrate(@NotNull MigrationContext ctx, int fromVersion, int toVersion) throws Exception {
         CommentConfigurationSection newConfig = ctx.resource(fileName());
-        if (fromVersion < 2) { // 1 -> 2
-            CommentConfigurationSection config = ctx.fs("config.yml");
 
-            newConfig.set("noPerms", Collections.singletonList(config.getString("messages.noPermission", "")));
-            newConfig.set("cloudpayments.reload", Collections.singletonList(config.getString("messages.reload", "").replace("{took}", "{time}") ));
-            newConfig.set("cloudpayments.debugOn", Collections.singletonList(config.getString("messages.debug-enabled", "")));
-            newConfig.set("cloudpayments.debugOff", Collections.singletonList(config.getString("messages.debug-disabled", "")));
+        for(int version = fromVersion; version < toVersion; version++) {
+            if(version == 1) {
+                CommentConfigurationSection config = ctx.fs("config.yml");
 
-            ctx.relocateCommonSections(config, newConfig);
+                newConfig.set("noPerms", Collections.singletonList(config.getString("messages.noPermission", "")));
+                newConfig.set("cloudpayments.reload", Collections.singletonList(config.getString("messages.reload", "").replace("{took}", "{time}") ));
+                newConfig.set("cloudpayments.debugOn", Collections.singletonList(config.getString("messages.debug-enabled", "")));
+                newConfig.set("cloudpayments.debugOff", Collections.singletonList(config.getString("messages.debug-disabled", "")));
+
+                ctx.relocateCommonSections(config, newConfig);
+            }
         }
 //        if(fromVersion < 3) { // 2 -> 3
 //            FOR EXAMPLE

@@ -1,6 +1,7 @@
 package ru.clouddonate.cloudpayments.shop;
 
 import org.bukkit.command.ConsoleCommandSender;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
@@ -107,19 +108,14 @@ public class ShopService implements Service {
                     sendMessageToMessenger(result);
                     localStorageService.addPayment(result);
 
-                    if(!cartFile.isEnabled()) {
-                        goodResults.add(result);
-                    } else {
-                        if(cartFile.isOnlyForOffline()) {
-                            if(plugin.getServer().getPlayer(result.getNickname()) != null) {
-                                goodResults.add(result);
-                            } else {
-                                addToCart(result);
-                            }
-                        } else {
-                            addToCart(result);
-                        }
+                    boolean toCart = false;
+                    if(cartFile.isEnabled() && !cartFile.getExcludeProducts().contains(result.getProduct_id())) {
+                        Player player = plugin.getServer().getPlayer(result.getNickname());
+                        if(!cartFile.isOnlyForOffline()) toCart = true;
+                        if(player == null) toCart = true;
                     }
+                    if(toCart) addToCart(result);
+                    else goodResults.add(result);
                     PurchaseApproveEvent event = new PurchaseApproveEvent(result);
                     plugin.getServer().getPluginManager().callEvent(event);
                 }

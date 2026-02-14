@@ -17,6 +17,7 @@ public class CartFile implements ConfigurationFile {
 
     private boolean enabled;
     private boolean onlyForOffline;
+    private final List<Integer> excludeProducts = new ArrayList<>();
 
     private String menuName;
     private int menuSize;
@@ -38,6 +39,8 @@ public class CartFile implements ConfigurationFile {
     public void load(@NotNull CommentConfigurationSection config) {
         enabled = config.getBoolean("enabled", false);
         onlyForOffline = config.getBoolean("onlyForOffline", false);
+        excludeProducts.clear();
+        excludeProducts.addAll(config.getIntegerList("excludeProducts"));
 
         menuName = TextUtil.toColor(config.getString("menu.name"));
         menuSize = config.getInt("menu.size", 54);

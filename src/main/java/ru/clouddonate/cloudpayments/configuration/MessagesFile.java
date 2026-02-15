@@ -56,6 +56,9 @@ public class MessagesFile implements ConfigurationFile {
                 newConfig.set("cloudpayments.debugOff", Collections.singletonList(config.getString("messages.debug-disabled", "")));
 
                 ctx.relocateCommonSections(config, newConfig);
+            } else if(version == 2) {
+                CommentConfigurationSection messages = ctx.fs("messages.yml");
+                ctx.relocateCommonSections(messages, newConfig);
             }
         }
 //        if(fromVersion < 3) { // 2 -> 3

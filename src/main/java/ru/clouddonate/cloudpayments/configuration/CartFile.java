@@ -78,6 +78,14 @@ public class CartFile implements ConfigurationFile {
 
     @Override
     public void migrate(@NotNull MigrationContext ctx, int fromVersion, int toVersion) throws Exception {
+        CommentConfigurationSection newConfig = ctx.resource(fileName());
+
+        for(int version = fromVersion; version < toVersion; version++) {
+            if(version == 2) {
+                CommentConfigurationSection config = ctx.fs("config.yml");
+                ctx.relocateCommonSections(config, newConfig);
+            }
+        }
     }
 
 

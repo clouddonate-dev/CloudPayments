@@ -10,10 +10,7 @@ import ru.basher.configuration.migration.MigrationContext;
 import ru.clouddonate.cloudpayments.util.TextUtil;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Getter
 @RequiredArgsConstructor
@@ -36,7 +33,7 @@ public class ConfigFile implements ConfigurationFile {
     private String messengersTelegramApiToken;
     private final List<String> messengersTelegramIds = new ArrayList<>();
 
-    private final Map<String, List<String>> inGameAnnouncements = new HashMap<>();
+    private final Map<Integer, List<String>> inGameAnnouncements = new HashMap<>();
 
     @Override
     public @NotNull String fileName() {
@@ -67,11 +64,17 @@ public class ConfigFile implements ConfigurationFile {
             for (String key : inGameAnnouncementsSec.getMap().keySet()) {
                 CommentConfigurationSection keySec = inGameAnnouncementsSec.getConfigurationSection(key);
                 if (keySec == null) continue;
+                int identifier;
+                try {
+                    identifier = Integer.parseInt(key);
+                } catch (NumberFormatException e) {
+                    continue;
+                }
                 List<String> actions = new ArrayList<>();
                 for (String str : keySec.getStringList("actions")) {
                     actions.add(TextUtil.toColor(str));
                 }
-                inGameAnnouncements.put(key, actions);
+                inGameAnnouncements.put(identifier, actions);
             }
         }
     }
@@ -110,6 +113,7 @@ public class ConfigFile implements ConfigurationFile {
                 CommentConfigurationSection inGameAnnouncementsSec = newConfig.getConfigurationSection("inGameAnnouncements");
                 CommentConfigurationSection oldInGameAnnouncementsSec = config.getConfigurationSection("in-game-announcements");
                 if (inGameAnnouncementsSec != null && oldInGameAnnouncementsSec != null) {
+                    int i = 12345;
                     for (String key : oldInGameAnnouncementsSec.getMap().keySet()) {
                         List<String> actions = oldInGameAnnouncementsSec.getStringList(key);
                         if(actions.isEmpty()) continue;
@@ -129,10 +133,31 @@ public class ConfigFile implements ConfigurationFile {
                                     .replace("<product>", "{product}")
                                     .replace("<count>", "{amount}");
                         });
-                        inGameAnnouncementsSec.set(key + ".actions", actions);
+                        inGameAnnouncementsSec.set(i + ".actions", actions);
+                        i++;
                     }
                 }
                 ctx.relocateCommonSections(config, newConfig);
+            } else if(version == 2) {
+                CommentConfigurationSection config = ctx.fs("config.yml");
+                ctx.relocateCommonSections(config, newConfig);
+                CommentConfigurationSection inGameAnnouncementsSec = newConfig.getConfigurationSection("inGameAnnouncements");
+                if(inGameAnnouncementsSec != null) {
+                    int i = 12345;
+                    Map<String, Object> map = inGameAnnouncementsSec.getMap();
+                    Set<String> keysCopy = new HashSet<>(map.keySet());
+
+                    for (String key : keysCopy) {
+                        try {
+                            Integer.parseInt(key);
+                            Object obj = map.remove(key);
+                            if(obj != null) {
+                                map.put(i + "", obj);
+                            }
+                        } catch (NumberFormatException ignored) {
+                        }
+                    }
+                }
             }
         }
 

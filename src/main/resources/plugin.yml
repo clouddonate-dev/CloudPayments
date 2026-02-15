@@ -1,5 +1,5 @@
 name: 'CloudPayments'
-version: '2.0.0'
+version: '2.1.0'
 main: ru.clouddonate.cloudpayments.CloudPaymentsPlugin
 api-version: 1.16
 authors: [ CloudDonate Developers and Contributors ]

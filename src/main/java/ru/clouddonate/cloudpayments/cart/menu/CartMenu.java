@@ -17,10 +17,8 @@ import ru.clouddonate.cloudpayments.configuration.ConfigurationService;
 import ru.clouddonate.cloudpayments.menu.Menu;
 import ru.clouddonate.cloudpayments.util.inventory.Replace;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class CartMenu implements Menu {
@@ -83,7 +81,7 @@ public class CartMenu implements Menu {
                 int slot = menuFile.getMenuSlots().get(i);
                 Product product = products.get(id);
                 inventory.setItem(slot, menuFile.getMenuProductItem().generate(
-                        new Replace("{product}", product.getId())
+                        new Replace("{product}", product.getName())
                 ));
                 productSlots.put(slot, product);
 
@@ -128,15 +126,15 @@ public class CartMenu implements Menu {
                             .replace("{user}", player.getName())
                             .replace("{amount}", product.getAmount() + ""));
                 }
-                announcementService.handle(product.getId(), player.getName(), product.getPrice(), product.getAmount());
+                announcementService.handle(product.getId(), product.getName(), player.getName(), product.getPrice(), product.getAmount());
             }
         }
     }
 
     private boolean removeProduct(@NotNull List<Product> products, @NotNull Product product) {
-        for(int i = 0; i < products.size(); i++) {
+        for (int i = 0; i < products.size(); i++) {
             Product prod = products.get(i);
-            if(prod.equals(product)) {
+            if (prod.equals(product)) {
                 products.remove(i);
                 return true;
             }

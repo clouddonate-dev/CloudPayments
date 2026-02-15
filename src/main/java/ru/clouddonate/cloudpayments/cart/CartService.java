@@ -38,11 +38,11 @@ public class CartService implements Service {
         dataBase.save(playerData);
     }
 
-    public void addToCart(@NotNull String playerName, @NotNull String productId, int price,
+    public void addToCart(@NotNull String playerName, int productId, @NotNull String productName, int price,
                           int amount, @NotNull List<String> commands) {
         PlayerCart cart = getCart(playerName);
         if (cart == null) cart = new PlayerCart(this, playerName);
-        cart.getProducts().add(new Product(productId, price, amount, commands));
+        cart.getProducts().add(new Product(productId, productName, price, amount, commands));
         save(cart);
     }
 

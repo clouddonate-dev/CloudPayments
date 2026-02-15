@@ -146,7 +146,7 @@ public class ShopService implements Service {
             commands.add(cmd.replace("{user}", result.getNickname())
                     .replace("{amount}", result.getAmount() + ""));
         }
-        cartService.addToCart(result.getNickname(), result.getName(), result.getPrice(), result.getAmount(), commands);
+        cartService.addToCart(result.getNickname(), result.getProduct_id(), result.getName(), result.getPrice(), result.getAmount(), commands);
     }
 
     private void sendMessageToMessenger(@NotNull GetResult result) {

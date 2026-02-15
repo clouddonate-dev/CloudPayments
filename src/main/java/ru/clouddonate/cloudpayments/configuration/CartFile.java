@@ -82,7 +82,7 @@ public class CartFile implements ConfigurationFile {
 
         for(int version = fromVersion; version < toVersion; version++) {
             if(version == 2) {
-                CommentConfigurationSection config = ctx.fs("config.yml");
+                CommentConfigurationSection config = ctx.fs("cart.yml");
                 ctx.relocateCommonSections(config, newConfig);
             }
         }

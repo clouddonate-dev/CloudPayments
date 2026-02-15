@@ -156,6 +156,7 @@ public class ConfigFile implements ConfigurationFile {
                             }
                         } catch (NumberFormatException ignored) {
                         }
+                        i++;
                     }
                 }
             }

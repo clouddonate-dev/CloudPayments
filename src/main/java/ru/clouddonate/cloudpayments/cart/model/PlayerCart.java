@@ -70,7 +70,16 @@ public class PlayerCart {
         String[] split = value.split(";");
         List<Product> products = new ArrayList<>();
         for(String product : split) {
-            products.add(Product.deserialize(product));
+            Product prod = null;
+            try {
+                prod = Product.deserialize(product);
+            } catch (Exception ignored) {
+            }
+            if(prod == null) {
+                Bukkit.getLogger().severe("[CloudPayments] Пожалуйста, удалите cartStorage.db и перезагрузите плагин");
+                continue;
+            }
+            products.add(prod);
         }
         return products;
     }

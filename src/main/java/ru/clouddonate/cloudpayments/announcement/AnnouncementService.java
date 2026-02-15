@@ -26,18 +26,18 @@ public class AnnouncementService implements Service {
     }
 
     public void handle(@NotNull GetResult result) {
-        handle(result.getName(), result.getNickname(), result.getPrice(), result.getAmount());
+        handle(result.getProduct_id(), result.getName(), result.getNickname(), result.getPrice(), result.getAmount());
     }
 
-    public void handle(@NotNull String product, @NotNull String playerName, int price, int amount) {
-        List<String> actions = configFile.getInGameAnnouncements().get(product);
+    public void handle(int productId, @NotNull String productName, @NotNull String playerName, int price, int amount) {
+        List<String> actions = configFile.getInGameAnnouncements().get(productId);
         if (actions == null) return;
 
         Player buyer = plugin.getServer().getPlayer(playerName);
         for (String action : actions) {
             action = action.replace("{playerName}", playerName)
                     .replace("{price}", TextUtil.formatNumber(price))
-                    .replace("{product}", product)
+                    .replace("{product}", productName)
                     .replace("{amount}", amount + "");
 
             if (action.startsWith("CHAT:")) {
